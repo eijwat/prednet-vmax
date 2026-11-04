@@ -53,12 +53,13 @@ def is_image_path(path):
 
 def resolve_path(path, list_dir, root=None):
     """Resolve one path from a list file (see the module docstring)."""
+    # Some old lists were written on Windows ("test_images\\x/0.png").
+    path = path.replace("\\", "/")
     if os.path.isabs(path):
         return path
     if root is not None:
         return os.path.join(root, path)
-    # Some old lists were written on Windows ("test_images\\x/0.png").
-    parts = os.path.normpath(path.replace("\\", "/")).split("/")
+    parts = os.path.normpath(path).split("/")
     for i in range(len(parts)):
         candidate = os.path.join(list_dir, *parts[i:])
         if os.path.exists(candidate):
@@ -206,16 +207,18 @@ class ImageHDF5Dataset(Dataset):
         return len(self.keys[:-self.input_len:self.input_len])
 
 
-def make_dataset(list_or_h5, img_size, input_len, channels, c_space="RGB", root=None):
-    """Build the right dataset for a list file or an .h5/.hdf5 file.
+def make_dataset(source, img_size, input_len, channels, c_space="RGB", root=None):
+    """Build the right dataset for a list file, an .h5/.hdf5 file, or entries.
 
+    source : path of a list file or HDF5 file, or an already loaded list of
+             entries (``[[path], ...]``, e.g. from prednet.stimuli)
     Returns (dataset, n_entries) where n_entries is the number of frames.
     """
-    if list_or_h5.endswith((".h5", ".hdf5")):
+    if isinstance(source, str) and source.endswith((".h5", ".hdf5")):
         ds = ImageHDF5Dataset(img_size=img_size, input_len=input_len, channels=channels)
-        ds.load_hdf5(list_or_h5, c_space=c_space)
+        ds.load_hdf5(source, c_space=c_space)
         return ds, len(ds.keys)
-    entries = load_list(list_or_h5, root)
+    entries = load_list(source, root) if isinstance(source, str) else source
     ds = ImageListDataset(img_size=img_size, input_len=input_len, channels=channels)
     if entries:
         ds.load_images(img_paths=entries, c_space=c_space)

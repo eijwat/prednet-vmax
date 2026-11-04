@@ -8,9 +8,10 @@ plus two list files in the same folder:
 
 The lists contain bare file names, so the folder can be moved freely.
 
-This is the replacement for legacy/generate_image_s.py and makes the same
-frames. Like the legacy script it skips the very first frame of the video,
-so frame numbers match frame sets made earlier (e.g. frames/ego4d_00).
+This is the replacement for the original generate_image_s.py (git 1e000af)
+and makes the same frames. Like that script it skips the very first frame
+of the video, so frame numbers match frame sets made earlier (e.g.
+frames/ego4d_00).
 """
 
 import os

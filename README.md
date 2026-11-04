@@ -19,6 +19,8 @@ prednet_refactor/
     data.py       frame lists, images, HDF5
     train.py      training
     predict.py    prediction
+    batch.py      repeated training + testing on stimuli
+    stimuli.py    catalog of test stimuli
     prepare.py    video -> frames
     config.py     config defaults and loading
     io.py         run folders, checkpoints, images
@@ -36,9 +38,13 @@ Data and results are kept on the external disk, not in the project:
   frames/<name>/  frames + train_list.txt / test_list.txt
   weights/init/   initial weights (init4.pth, ...)
   weights/legacy_models/  models trained with the original code
+  test_images/    test stimuli (illusions etc.)
+    stimuli.yaml  the catalog: every stimulus by name
+    legacy_lists/ the old *_test_list.txt files (no longer needed)
   baseline/       reference outputs of the original code (for tests)
+  old_outputs/    old prediction results found among the stimuli
 /mnt/buffalo/prednet_runs/
-  <date>_<time>_<name>/   one folder per training run
+  <date>_<time>_<name>/   one folder per training run or batch
 ```
 
 ## Quick start
@@ -130,15 +136,74 @@ python3 -m prednet predict --config configs/ego4d.yaml \
     --list /mnt/buffalo/prednet_data/frames/sample/test_list.txt --out /tmp/pred
 ```
 
+## Test stimuli
+
+All test stimuli are named in one file,
+`/mnt/buffalo/prednet_data/test_images/stimuli.yaml`:
+
+```yaml
+bht:                        # Benham top
+  frames: [bht/0.jpg, bht/1.jpg, bht/2.jpg, bht/3.jpg]
+  length: 24                # cycle the frames up to 24
+bht_static:
+  frames: [bht/3.jpg]
+  length: 24
+FW:
+  frames: [FW/1.jpg*22, FW/2.jpg*22]   # "path*N" = that frame N times
+```
+
+Paths are relative to `test_images/`. A new stimulus is a few lines here;
+an optional `note:` describes it.
+
+```
+python3 -m prednet stimuli                    # list all stimuli
+python3 -m prednet stimuli bht                # show the frames of one
+python3 -m prednet predict RUN_DIR --stimulus bht --stimulus bht_rev
+```
+
+Output: `RUN_DIR/predictions/<checkpoint>_<stimulus>/`.
+
+## Batches (repeated training and testing)
+
+`prednet batch` replaces `auto_train_test.py` and `auto_benham.py`. Add a
+`batch` section to a config (example: `configs/benham_batch.yaml`):
+
+```yaml
+batch:
+  repeats: 20                         # train each dataset 20 times
+  datasets:                           # name: train list
+    ego4d_00: /mnt/buffalo/prednet_data/frames/ego4d_00/train_list.txt
+  stimuli: [bht, bht_rev, bht_static, bhtr, bhtr_rev, bhtr_static]
+  checkpoints: [10000, 20000, 30000, 40000]
+  collect: [test_19y_0.jpg]           # copied into summary/
+```
+
+```
+python3 -m prednet batch configs/benham_batch.yaml
+python3 -m prednet batch --resume /mnt/buffalo/prednet_runs/<batch folder>
+```
+
+The batch folder holds `batch.yaml`, `status.csv`, one run folder per
+`<dataset>/<repeat>/`, and `summary/<dataset>_<repeat>_<stimulus>_<checkpoint>_<file>`.
+A stopped batch can be resumed; finished parts (marked `DONE`) are skipped.
+
+Note: with `init_weights` set and `shuffle` off, training on the CPU is
+deterministic, so all repeats give the same result. To get different
+repeats, set `batch.seeds` (one per repeat) together with
+`train.shuffle: true`, or leave `init_weights` empty.
+
 ## Tests
 
 The new code is checked against the original one: same weights, same losses,
 byte-identical prediction images.
 
 ```
+python3 -m pytest -q tests                # all, ~6 min
 python3 tests/test_model_equivalence.py   # ~40 s
 python3 tests/test_data_equivalence.py    # ~2 s
+python3 tests/test_stimuli.py             # ~2 s
 python3 tests/test_train_predict.py       # ~70 s
+python3 tests/test_batch.py               # ~4 min
 ```
 
 ## Changes from the original code
@@ -150,9 +215,13 @@ python3 tests/test_train_predict.py       # ~70 s
   ignored by the original `--test`).
 - List files are read relative to their own folder, so frames can be moved.
 - `.png` frames are read as images.
+- Test stimuli are one catalog instead of 112 list files.
+- Batches are one config and one command, and can be resumed.
+- Removed from `legacy/` because they are replaced (still in git history):
+  `main.py`, `auto_train_test.py`, `auto_benham.py`, `generate_image_s.py`.
 - Not ported yet (still in `legacy/`): audio spectrograms
-  (`generate_spectrum.py`), batch scripts (`auto_*.py`), weight tools
-  (`csv_serializer.py`, `weight_editor.py`), RAFT / PWC-Net flow.
+  (`generate_spectrum.py`), weight tools (`csv_serializer.py`,
+  `weight_editor.py`), RAFT / PWC-Net flow, other helper scripts.
 
 ---
 
@@ -175,6 +244,8 @@ prednet_refactor/
     data.py       フレーム一覧・画像・HDF5の読み込み
     train.py      学習
     predict.py    予測
+    batch.py      一括実行（学習の繰り返しとテスト）
+    stimuli.py    テスト刺激のカタログ
     prepare.py    動画をフレームに分ける
     config.py     設定の初期値と読み込み
     io.py         学習フォルダ・重み・画像の保存
@@ -192,9 +263,13 @@ prednet_refactor/
   frames/<名前>/  フレーム画像と train_list.txt / test_list.txt
   weights/init/   初期の重み（init4.pth など）
   weights/legacy_models/  元のコードで学習したモデル
+  test_images/    テスト刺激（錯視の画像など）
+    stimuli.yaml  カタログ：すべての刺激を名前で管理
+    legacy_lists/ 以前の *_test_list.txt（もう使いません）
   baseline/       元のコードの出力（テスト用の基準）
+  old_outputs/    テスト刺激の中に紛れていた昔の予測結果
 /mnt/buffalo/prednet_runs/
-  <日付>_<時刻>_<名前>/   学習1回ごとのフォルダ
+  <日付>_<時刻>_<名前>/   学習1回ごと、または一括実行1回ごとのフォルダ
 ```
 
 ## 使い方
@@ -284,14 +359,65 @@ python3 -m prednet predict --config configs/ego4d.yaml \
     --list /mnt/buffalo/prednet_data/frames/sample/test_list.txt --out /tmp/pred
 ```
 
+## テスト刺激
+
+テスト刺激は、すべて1つのファイル `/mnt/buffalo/prednet_data/test_images/stimuli.yaml` に名前付きで書いてあります。
+
+```yaml
+bht:                        # ベンハムのコマ
+  frames: [bht/0.jpg, bht/1.jpg, bht/2.jpg, bht/3.jpg]
+  length: 24                # フレームを24枚になるまで繰り返す
+bht_static:
+  frames: [bht/3.jpg]
+  length: 24
+FW:
+  frames: [FW/1.jpg*22, FW/2.jpg*22]   # "パス*N" = そのフレームをN回続ける
+```
+
+パスは `test_images/` から見た場所です。新しい刺激は、ここに数行足すだけで作れます。`note:` に説明を書くこともできます。
+
+```
+python3 -m prednet stimuli                    # 刺激の一覧
+python3 -m prednet stimuli bht                # 1つの刺激のフレームを表示
+python3 -m prednet predict 学習フォルダ --stimulus bht --stimulus bht_rev
+```
+
+結果は `学習フォルダ/predictions/<チェックポイント>_<刺激の名前>/` にできます。
+
+## 一括実行（学習の繰り返しとテスト）
+
+`prednet batch` は、`auto_train_test.py` と `auto_benham.py` の代わりです。設定ファイルに `batch` の項目を足します（例：`configs/benham_batch.yaml`）。
+
+```yaml
+batch:
+  repeats: 20                         # それぞれのデータで20回学習する
+  datasets:                           # 名前: 学習用の一覧
+    ego4d_00: /mnt/buffalo/prednet_data/frames/ego4d_00/train_list.txt
+  stimuli: [bht, bht_rev, bht_static, bhtr, bhtr_rev, bhtr_static]
+  checkpoints: [10000, 20000, 30000, 40000]
+  collect: [test_19y_0.jpg]           # summary/ に集めるファイル
+```
+
+```
+python3 -m prednet batch configs/benham_batch.yaml
+python3 -m prednet batch --resume /mnt/buffalo/prednet_runs/<一括実行のフォルダ>
+```
+
+一括実行のフォルダには、`batch.yaml`、`status.csv`、`<データ名>/<回数>/` ごとの学習フォルダ、`summary/<データ名>_<回数>_<刺激>_<チェックポイント>_<ファイル名>` ができます。途中で止めても再開でき、終わった部分（`DONE` の印があるもの）は飛ばします。
+
+注意：`init_weights` を指定して `shuffle` を切っていると、CPUでの学習は毎回まったく同じ結果になります。そのため、繰り返しても同じものが20個できるだけです。繰り返しごとに違う結果がほしいときは、`batch.seeds`（繰り返しの回数分）と `train.shuffle: true` を一緒に指定するか、`init_weights` を空にしてください。
+
 ## テスト
 
 新しいコードが、元のコードと同じ重み・同じ損失・まったく同じ予測画像になるかを確かめます。
 
 ```
+python3 -m pytest -q tests                # 全部（約6分）
 python3 tests/test_model_equivalence.py   # 約40秒
 python3 tests/test_data_equivalence.py    # 約2秒
+python3 tests/test_stimuli.py             # 約2秒
 python3 tests/test_train_predict.py       # 約70秒
+python3 tests/test_batch.py               # 約4分
 ```
 
 ## 元のコードから変わったこと
@@ -302,4 +428,7 @@ python3 tests/test_train_predict.py       # 約70秒
 - 予測のときも、その学習で使ったモデルの設定を使います（元の `--test` では round_mode, amp, omg が使われていませんでした）。
 - 一覧ファイルの中のパスを、一覧ファイルが置いてあるフォルダから探すので、フレームを別の場所に移しても動きます。
 - `.png` のフレームも画像として読み込めます。
-- まだ移していないもの（`legacy/` に残っています）: 音声スペクトログラム（`generate_spectrum.py`）、一括実行スクリプト（`auto_*.py`）、重みの道具（`csv_serializer.py`, `weight_editor.py`）、RAFT / PWC-Net のフロー。
+- テスト刺激は、112個の一覧ファイルではなく1つのカタログで管理します。
+- 一括実行は、1つの設定ファイルと1つのコマンドで行い、途中から再開できます。
+- 書き直しが済んだので `legacy/` から消したもの（gitの履歴には残っています）: `main.py`, `auto_train_test.py`, `auto_benham.py`, `generate_image_s.py`。
+- まだ移していないもの（`legacy/` に残っています）: 音声スペクトログラム（`generate_spectrum.py`）、重みの道具（`csv_serializer.py`, `weight_editor.py`）、RAFT / PWC-Net のフロー、そのほかの補助スクリプト。

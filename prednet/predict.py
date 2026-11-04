@@ -46,7 +46,10 @@ def resolve_checkpoint(run_dir, checkpoint):
 
 
 def predict(cfg, weights, test_list, out_dir):
-    """Predict every clip of ``test_list`` with ``weights``, into ``out_dir``."""
+    """Predict every clip of ``test_list`` with ``weights``, into ``out_dir``.
+
+    test_list : a list file, or entries from prednet.stimuli.
+    """
     d, p = cfg["data"], cfg["predict"]
     device = resolve_device(cfg["device"])
     width, height = d["size"]
@@ -120,15 +123,29 @@ def predict(cfg, weights, test_list, out_dir):
     return out_dir
 
 
-def predict_run(cfg, run_dir, checkpoint=None, test_list=None):
-    """Predict with a checkpoint of a run; output inside that run folder."""
-    weights = resolve_checkpoint(run_dir, checkpoint)
-    test_list = test_list or cfg["data"]["test_list"]
-    if not test_list:
-        raise ValueError("No test list: pass --list or set data.test_list")
+def prediction_dir(run_dir, weights, label):
     ckpt_name = os.path.splitext(os.path.basename(weights))[0]
-    list_name = os.path.splitext(os.path.basename(test_list))[0]
-    parent = os.path.basename(os.path.dirname(os.path.abspath(test_list)))
-    out_dir = os.path.join(run_dir, "predictions",
-                           "%s_%s_%s" % (ckpt_name, parent, list_name))
-    return predict(cfg, weights, test_list, out_dir)
+    return os.path.join(run_dir, "predictions", "%s_%s" % (ckpt_name, label))
+
+
+def predict_run(cfg, run_dir, checkpoint=None, test_list=None, stimulus=None):
+    """Predict with a checkpoint of a run; output inside that run folder.
+
+    Give either a stimulus name (from the catalog), a list file, or neither
+    (then data.test_list is used). Output folder:
+    ``predictions/<checkpoint>_<stimulus>`` or
+    ``predictions/<checkpoint>_<frame folder>_<list name>``.
+    """
+    weights = resolve_checkpoint(run_dir, checkpoint)
+    if stimulus:
+        from .stimuli import stimulus_entries
+        source = stimulus_entries(stimulus, cfg["predict"]["stimuli_catalog"])
+        label = stimulus
+    else:
+        source = test_list or cfg["data"]["test_list"]
+        if not source:
+            raise ValueError("No test data: pass --stimulus or --list, or set data.test_list")
+        list_name = os.path.splitext(os.path.basename(source))[0]
+        parent = os.path.basename(os.path.dirname(os.path.abspath(source)))
+        label = "%s_%s" % (parent, list_name)
+    return predict(cfg, weights, source, prediction_dir(run_dir, weights, label))

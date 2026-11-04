@@ -7,6 +7,7 @@ A config is a nested dict with four sections. Every key has a default
     model:  network shape, initial weights and model options
     train:  optimiser and schedule (used by ``prednet train``)
     predict: prediction settings (used by ``prednet predict``)
+    batch:  repeated training + testing (used by ``prednet batch``)
     output: where run folders are created
 
 Overrides from the command line use dotted keys and YAML values:
@@ -72,6 +73,22 @@ DEFAULTS = {
         "num_workers": 0,
         "useamp": False,
         "tensorboard": False,
+        # Catalog of named test stimuli (see prednet/stimuli.py).
+        "stimuli_catalog": "/mnt/buffalo/prednet_data/test_images/stimuli.yaml",
+    },
+    # Used only by "prednet batch" (see prednet/batch.py).
+    "batch": {
+        "repeats": 1,                # train each dataset this many times
+        # name -> train list (or list of lists). Empty: one dataset, named
+        # after the config, using data.train_list.
+        "datasets": {},
+        # One seed per repeat (torch.manual_seed), or null for none. Note: with
+        # model.init_weights and shuffle off, CPU training is deterministic,
+        # so repeats only differ if seeds/shuffle make them differ.
+        "seeds": None,
+        "stimuli": [],               # stimulus names to predict after training
+        "checkpoints": [],           # frame numbers to test; empty = latest
+        "collect": [],               # prediction files copied into summary/
     },
     "output": {
         "runs_dir": DEFAULT_RUNS_DIR,

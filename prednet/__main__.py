@@ -5,12 +5,19 @@ Commands
 train CONFIG [--set key=value ...]
     Train with a YAML config. A new run folder is created for every call.
 
-predict RUN_DIR [--checkpoint N|PATH] [--list LIST] [--set key=value ...]
+predict RUN_DIR [--checkpoint N|PATH] [--stimulus NAME ... | --list LIST]
     Predict with a checkpoint of a run (default: the latest one), using the
-    settings saved in RUN_DIR/config.yaml.
+    settings saved in RUN_DIR/config.yaml. --stimulus takes names from the
+    stimuli catalog and can be repeated.
 
 predict --config CONFIG --weights PTH --list LIST --out DIR
     Predict with any weights file (e.g. old models that have no run folder).
+
+batch CONFIG [--set key=value ...]  |  batch --resume BATCH_DIR
+    Train several datasets / repeats and test them on stimuli (see batch.py).
+
+stimuli [NAME ...]
+    List the stimuli in the catalog, or show the frames of the given ones.
 
 prepare VIDEO --out DIR [options]
     Cut a video into frames and write train_list.txt / test_list.txt.
@@ -22,6 +29,8 @@ Examples
 --------
     python3 -m prednet train configs/sample.yaml --set train.period=40
     python3 -m prednet predict /mnt/buffalo/prednet_runs/2026-11-05_1430_sample
+    python3 -m prednet predict RUN_DIR --stimulus bht --stimulus bht_rev
+    python3 -m prednet batch configs/benham_batch.yaml
 """
 
 import argparse
@@ -52,10 +61,21 @@ def main(argv=None):
     p.add_argument("run_dir", nargs="?", help="run folder made by train")
     p.add_argument("--checkpoint", help="frame number in checkpoints/, or a .pth path")
     p.add_argument("--list", dest="test_list", help="list of frames to predict")
+    p.add_argument("--stimulus", action="append", default=[],
+                   help="stimulus name from the catalog (repeatable)")
     p.add_argument("--config", help="config file (when not using a run folder)")
     p.add_argument("--weights", help=".pth file (when not using a run folder)")
     p.add_argument("--out", help="output folder (when not using a run folder)")
     _add_set(p)
+
+    p = sub.add_parser("batch", help="repeated training and testing")
+    p.add_argument("config", nargs="?", help="YAML config with a batch section")
+    p.add_argument("--resume", metavar="BATCH_DIR", help="continue a stopped batch")
+    _add_set(p)
+
+    p = sub.add_parser("stimuli", help="list or show test stimuli")
+    p.add_argument("names", nargs="*")
+    p.add_argument("--catalog", default=None, help="catalog file (default: predict.stimuli_catalog)")
 
     p = sub.add_parser("prepare", help="cut a video into frames")
     p.add_argument("video")
@@ -81,12 +101,46 @@ def main(argv=None):
         from .predict import predict, predict_run
         if args.run_dir:
             cfg = config_mod.load_config(os.path.join(args.run_dir, "config.yaml"), args.overrides)
-            predict_run(cfg, args.run_dir, args.checkpoint, args.test_list)
+            if args.stimulus and args.test_list:
+                parser.error("give --stimulus or --list, not both")
+            for stim in args.stimulus or [None]:
+                predict_run(cfg, args.run_dir, args.checkpoint, args.test_list, stimulus=stim)
         else:
-            if not (args.config and args.weights and args.test_list and args.out):
-                parser.error("without RUN_DIR, give --config, --weights, --list and --out")
+            if not (args.config and args.weights and args.out) or \
+                    bool(args.test_list) == bool(args.stimulus) or len(args.stimulus) > 1:
+                parser.error("without RUN_DIR, give --config, --weights, --out and "
+                             "either --list or one --stimulus")
             cfg = config_mod.load_config(args.config, args.overrides)
-            predict(cfg, args.weights, args.test_list, args.out)
+            source = args.test_list
+            if args.stimulus:
+                from .stimuli import stimulus_entries
+                source = stimulus_entries(args.stimulus[0], cfg["predict"]["stimuli_catalog"])
+            predict(cfg, args.weights, source, args.out)
+
+    elif args.command == "batch":
+        from .batch import resume_batch, run_batch
+        if args.resume:
+            if args.config or args.overrides:
+                parser.error("--resume uses the saved batch.yaml; give no config or --set")
+            resume_batch(args.resume)
+        else:
+            if not args.config:
+                parser.error("give a config file or --resume BATCH_DIR")
+            run_batch(config_mod.load_config(args.config, args.overrides))
+
+    elif args.command == "stimuli":
+        from . import stimuli as stim_mod
+        path = args.catalog or config_mod.DEFAULTS["predict"]["stimuli_catalog"]
+        catalog = stim_mod.load_catalog(path)
+        if not args.names:
+            for name, e in catalog.items():
+                n = e.get("length", len(stim_mod.unroll(e["frames"])))
+                print("%-22s %4d frames  %s" % (name, n, e.get("note", "")))
+        for name in args.names:
+            entries = stim_mod.expand(catalog, name, os.path.dirname(os.path.abspath(path)))
+            print("%s (%d frames):" % (name, len(entries)))
+            for e in entries:
+                print("  " + e[0])
 
     elif args.command == "prepare":
         from .prepare import prepare

@@ -58,16 +58,22 @@ def test_same_samples_as_legacy():
 
 
 def test_lists_next_to_frame_folder():
-    # test_images/bht_test_list.txt says "test_images/bht/0.jpg".
-    lst = os.path.join(DATA, "test_images", "bht_test_list.txt")
-    entries = load_list(lst)
-    assert len(entries) == 24
-    assert entries[0][0] == os.path.join(DATA, "test_images", "bht", "0.jpg")
-    for name in os.listdir(os.path.join(DATA, "test_images")):
-        if name.endswith("_test_list.txt"):
-            for e in load_list(os.path.join(DATA, "test_images", name)):
-                for path in e:
-                    assert os.path.exists(path), (name, path)
+    # Old lists such as test_images/bht_test_list.txt sat next to the frame
+    # folder and said "test_images/bht/0.jpg"; one used a Windows backslash.
+    # (The real old lists are now checked in tests/test_stimuli.py.)
+    import tempfile
+    tmp = tempfile.mkdtemp(prefix="prednet_list_test_")
+    try:
+        os.symlink(os.path.join(DATA, "test_images", "bht"), os.path.join(tmp, "bht"))
+        lst = os.path.join(tmp, "bht_test_list.txt")
+        with open(lst, "w") as f:
+            f.write("test_images/bht/0.jpg\ntest_images\\bht/1.jpg\n")
+        entries = load_list(lst)
+        assert entries == [[os.path.join(tmp, "bht", "0.jpg")], [os.path.join(tmp, "bht", "1.jpg")]]
+        assert all(os.path.exists(e[0]) for e in entries)
+    finally:
+        import shutil
+        shutil.rmtree(tmp)
 
 
 def test_root_option_keeps_legacy_rule():

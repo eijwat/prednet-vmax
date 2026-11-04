@@ -10,9 +10,10 @@ Everything a run produces goes into its own run folder:
         tensorboard/       only with train.tensorboard
         model.dot          only with train.save_graph
 
-The numerical procedure is the same as legacy/main.py ``train()``; with the
-same initial weights and data it produces bit-identical checkpoints (checked
-by tests/test_train_predict.py).
+The numerical procedure is the same as ``train()`` in the original main.py
+(git 1e000af, also in /mnt/buffalo/prednet_data/baseline); with the same
+initial weights and data it produces bit-identical checkpoints (checked by
+tests/test_train_predict.py).
 """
 
 import os
