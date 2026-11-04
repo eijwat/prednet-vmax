@@ -57,16 +57,6 @@ def test_same_samples_as_legacy():
             assert np.array_equal(a, b), "sample %d differs (%d, %s)" % (i, ch, c_space)
 
 
-# These lists name files that are missing in the original folder as well
-# (~/PredNet/test_images on spark, 2026-11-04), so they cannot resolve.
-KNOWN_BROKEN_LISTS = {
-    "beh_c_rev_test_list.txt",   # bht/frame_*.jpg
-    "bht_c_test_list.txt",       # bht/frame_*.jpg
-    "lights03_test_list.txt",    # lights/03.png
-    "snakeb5b_test_list.txt",    # snake/snakeb5.png
-    "y_test_list.txt",           # data/test_*y_0.jpg (old prediction output)
-}
-
 def test_lists_next_to_frame_folder():
     # test_images/bht_test_list.txt says "test_images/bht/0.jpg".
     lst = os.path.join(DATA, "test_images", "bht_test_list.txt")
@@ -74,7 +64,7 @@ def test_lists_next_to_frame_folder():
     assert len(entries) == 24
     assert entries[0][0] == os.path.join(DATA, "test_images", "bht", "0.jpg")
     for name in os.listdir(os.path.join(DATA, "test_images")):
-        if name.endswith("_test_list.txt") and name not in KNOWN_BROKEN_LISTS:
+        if name.endswith("_test_list.txt"):
             for e in load_list(os.path.join(DATA, "test_images", name)):
                 for path in e:
                     assert os.path.exists(path), (name, path)
