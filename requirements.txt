@@ -1,0 +1,24 @@
+# Versions installed on imac (Linux Mint 21.1, Python 3.10, CPU only), 2026-11-04.
+# Install with:  pip3 install --user -r requirements.txt
+# Pillow, PyYAML and OpenCV (cv2 4.12) come from the system packages.
+
+# core
+torch==2.8.0
+torchvision==0.23.0
+numpy==2.2.6
+h5py==3.14.0
+tqdm==4.67.1
+tensorboard==2.20.0
+torchviz==0.0.3
+
+# audio spectrograms (legacy/generate_spectrum.py)
+librosa==0.11.0
+soundfile==0.14.0
+
+# plots, video with audio (legacy/generate_data.py), ffmpeg binary
+matplotlib==3.10.9
+moviepy==1.0.3
+imageio-ffmpeg==0.8.1
+
+# tests
+pytest==9.2.0
