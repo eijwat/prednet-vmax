@@ -11,12 +11,16 @@ Paths in a list are resolved by ``load_list``:
 1. absolute paths are used as they are;
 2. if ``root`` is given, paths are joined to it (the legacy ``--root`` rule);
 3. otherwise they are taken relative to the folder that contains the list;
-4. if that file does not exist, only the file name is kept, again relative
-   to the list's folder.
+4. if that file does not exist, leading folders are dropped one at a time
+   (``a/b/c.jpg`` -> ``b/c.jpg`` -> ``c.jpg``), again relative to the list's
+   folder, and the first one that exists is used.
 
-Rule 4 makes old lists work after the frames were moved: a line such as
-``data_e/frame_00000000.jpg`` written by the original scripts is found inside
-the folder of the list, wherever that folder now is.
+Rule 4 makes old lists work after the frames were moved. Lists written by
+the original scripts hold paths relative to the old working folder:
+``data_e/frame_00000000.jpg`` (list inside the frame folder) is found as
+``frame_00000000.jpg``, and ``test_images/bht/0.jpg`` (list next to the
+frame folder) is found as ``bht/0.jpg``. Backslashes count as folder
+separators, for lists written on Windows.
 
 Samples
 -------
@@ -53,14 +57,14 @@ def resolve_path(path, list_dir, root=None):
         return path
     if root is not None:
         return os.path.join(root, path)
-    candidate = os.path.join(list_dir, path)
-    if os.path.exists(candidate):
-        return candidate
-    by_name = os.path.join(list_dir, os.path.basename(path))
-    if os.path.exists(by_name):
-        return by_name
-    # Neither exists: return the first form so the error message shows it.
-    return candidate
+    # Some old lists were written on Windows ("test_images\\x/0.png").
+    parts = os.path.normpath(path.replace("\\", "/")).split("/")
+    for i in range(len(parts)):
+        candidate = os.path.join(list_dir, *parts[i:])
+        if os.path.exists(candidate):
+            return candidate
+    # Nothing exists: return the full form so the error message shows it.
+    return os.path.join(list_dir, path)
 
 
 def load_list(path, root=None):
