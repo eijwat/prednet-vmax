@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+runs/
+result/
+models/
+log_t.txt
+log_p.txt
+model.dot
+*.pth
