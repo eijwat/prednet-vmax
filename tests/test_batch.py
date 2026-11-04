@@ -67,6 +67,22 @@ def test_small_batch_and_resume():
         shutil.rmtree(tmp)
 
 
+def test_batch_config_checks():
+    from prednet.batch import check_batch
+    base = os.path.join(ROOT, "configs", "benham_batch.yaml")
+    check_batch(load_config(base))  # the shipped example is valid
+    for override, error in [("batch.stimuli=[bht, no_such]", KeyError),
+                            ("batch.checkpoints=[15000]", ValueError),
+                            ("batch.datasets={x: /no/such/list.txt}", FileNotFoundError)]:
+        try:
+            check_batch(load_config(base, [override]))
+        except error:
+            continue
+        raise AssertionError("not rejected: " + override)
+
+
 if __name__ == "__main__":
+    test_batch_config_checks()
+    print("ok   test_batch_config_checks")
     test_small_batch_and_resume()
     print("ok   test_small_batch_and_resume")

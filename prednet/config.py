@@ -109,11 +109,15 @@ def deep_merge(base, override):
 
 
 def check_keys(cfg, ref=DEFAULTS, prefix=""):
-    """Raise on keys that are not in DEFAULTS, to catch typos early."""
+    """Raise on keys that are not in DEFAULTS, to catch typos early.
+
+    A default of ``{}`` (e.g. batch.datasets) means free-form keys: its
+    contents are not checked.
+    """
     for k, v in cfg.items():
         if k not in ref:
             raise KeyError("Unknown config key: " + prefix + k)
-        if isinstance(v, dict) and isinstance(ref[k], dict):
+        if isinstance(v, dict) and isinstance(ref[k], dict) and ref[k]:
             check_keys(v, ref[k], prefix + k + ".")
 
 

@@ -64,6 +64,26 @@ def plan(cfg):
     return [(name, r) for name in datasets_of(cfg) for r in range(cfg["batch"]["repeats"])]
 
 
+def check_batch(cfg):
+    """Catch mistakes before hours of training: unknown stimuli, checkpoints
+    that will never be saved, missing train lists."""
+    b, t = cfg["batch"], cfg["train"]
+    if b["stimuli"]:
+        from .stimuli import load_catalog
+        catalog = load_catalog(cfg["predict"]["stimuli_catalog"])
+        unknown = [s for s in b["stimuli"] if s not in catalog]
+        if unknown:
+            raise KeyError("Unknown stimuli: " + ", ".join(unknown))
+    for ck in b["checkpoints"]:
+        if ck > t["period"] or ck % t["save_every"] != 0:
+            raise ValueError("Checkpoint %d is never saved (period %d, save_every %d)"
+                             % (ck, t["period"], t["save_every"]))
+    for name, lists in datasets_of(cfg).items():
+        for path in ([lists] if isinstance(lists, str) else (lists or [])):
+            if not os.path.exists(path):
+                raise FileNotFoundError("Train list of %s not found: %s" % (name, path))
+
+
 def run_batch(cfg, batch_dir=None):
     """Run (or resume, when ``batch_dir`` exists) a whole batch."""
     b = cfg["batch"]
@@ -72,6 +92,7 @@ def run_batch(cfg, batch_dir=None):
         raise ValueError("batch.seeds needs one seed per repeat")
     if not b["stimuli"]:
         print("Note: batch.stimuli is empty, so only training is done.")
+    check_batch(cfg)
 
     if batch_dir is None:
         batch_dir = make_run_dir(cfg["output"]["runs_dir"], cfg["name"])
