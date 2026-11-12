@@ -13,7 +13,7 @@ sys.path.insert(0, ROOT)
 
 from prednet import stimuli as S  # noqa: E402
 
-DATA = "/mnt/buffalo/prednet_data"
+DATA = "/home/deepimac/Claude/prednet_data"
 TEST_IMAGES = os.path.join(DATA, "test_images")
 CATALOG = os.path.join(TEST_IMAGES, "stimuli.yaml")
 LEGACY = os.path.join(TEST_IMAGES, "legacy_lists")

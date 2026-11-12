@@ -20,7 +20,7 @@ import os
 
 import yaml
 
-DEFAULT_RUNS_DIR = "/mnt/buffalo/prednet_runs"
+DEFAULT_RUNS_DIR = "/home/deepimac/Claude/prednet_runs"
 
 DEFAULTS = {
     "name": "run",
@@ -74,7 +74,7 @@ DEFAULTS = {
         "useamp": False,
         "tensorboard": False,
         # Catalog of named test stimuli (see prednet/stimuli.py).
-        "stimuli_catalog": "/mnt/buffalo/prednet_data/test_images/stimuli.yaml",
+        "stimuli_catalog": "/home/deepimac/Claude/prednet_data/test_images/stimuli.yaml",
     },
     # Used only by "prednet batch" (see prednet/batch.py).
     "batch": {

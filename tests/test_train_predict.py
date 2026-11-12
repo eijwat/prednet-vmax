@@ -1,6 +1,6 @@
 """End-to-end check of training and prediction against the baseline.
 
-The baseline (/mnt/buffalo/prednet_data/baseline, see BASELINE.md) holds the
+The baseline (/home/deepimac/Claude/prednet_data/baseline, see BASELINE.md) holds the
 outputs of the original main.py on the 21-frame sample. This test runs the
 new code with configs/sample.yaml and requires:
 
@@ -31,7 +31,7 @@ from prednet.config import load_config  # noqa: E402
 from prednet.predict import predict_run  # noqa: E402
 from prednet.train import train  # noqa: E402
 
-BASE = "/mnt/buffalo/prednet_data/baseline"
+BASE = "/home/deepimac/Claude/prednet_data/baseline"
 
 
 def read_csv(path, header):

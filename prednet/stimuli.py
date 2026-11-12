@@ -1,7 +1,7 @@
 """Test stimuli: a catalog of named frame sequences (illusions, test movies).
 
 All stimuli are described in one YAML file, by default
-``/mnt/buffalo/prednet_data/test_images/stimuli.yaml``. Each entry is
+``/home/deepimac/Claude/prednet_data/test_images/stimuli.yaml``. Each entry is
 
     bht_rev:                      # the name used on the command line
       frames: [bht/2.jpg, bht/1.jpg, bht/0.jpg, bht/3.jpg]
@@ -29,7 +29,7 @@ import re
 
 import yaml
 
-DEFAULT_CATALOG = "/mnt/buffalo/prednet_data/test_images/stimuli.yaml"
+DEFAULT_CATALOG = "/home/deepimac/Claude/prednet_data/test_images/stimuli.yaml"
 LIST_SUFFIX = "test_list.txt"
 _REPEAT = re.compile(r"^(.*)\*(\d+)$")
 

@@ -2,7 +2,7 @@
 # ("python3 main.py -i data_e/train_list.txt" in the legacy README).
 name: ego4d
 data:
-  train_list: /mnt/buffalo/prednet_data/frames/ego4d_00/train_list.txt
+  train_list: /home/deepimac/Claude/prednet_data/frames/ego4d_00/train_list.txt
   size: [160, 120]
   color_space: RGB
 model:

@@ -33,7 +33,7 @@ prednet_refactor/
 Data and results are kept on the external disk, not in the project:
 
 ```
-/mnt/buffalo/prednet_data/
+/home/deepimac/Claude/prednet_data/
   videos/         source videos
   frames/<name>/  frames + train_list.txt / test_list.txt
   weights/init/   initial weights (init4.pth, ...)
@@ -43,7 +43,7 @@ Data and results are kept on the external disk, not in the project:
     legacy_lists/ the old *_test_list.txt files (no longer needed)
   baseline/       reference outputs of the original code (for tests)
   old_outputs/    old prediction results found among the stimuli
-/mnt/buffalo/prednet_runs/
+/home/deepimac/Claude/prednet_runs/
   <date>_<time>_<name>/   one folder per training run or batch
 ```
 
@@ -58,8 +58,8 @@ cd ~/Claude/prednet_refactor
 1. Cut a video into frames:
 
    ```
-   python3 -m prednet prepare /mnt/buffalo/prednet_data/videos/cat_snake.mp4 \
-       --out /mnt/buffalo/prednet_data/frames/cat_snake --width 160 --height 120
+   python3 -m prednet prepare /home/deepimac/Claude/prednet_data/videos/cat_snake.mp4 \
+       --out /home/deepimac/Claude/prednet_data/frames/cat_snake --width 160 --height 120
    ```
 
 2. Write a config (copy `configs/sample.yaml` and change `name` and the lists).
@@ -70,12 +70,12 @@ cd ~/Claude/prednet_refactor
    python3 -m prednet train configs/sample.yaml
    ```
 
-   This creates e.g. `/mnt/buffalo/prednet_runs/2026-11-05_1430_sample/`.
+   This creates e.g. `/home/deepimac/Claude/prednet_runs/2026-11-05_1430_sample/`.
 
 4. Predict with the latest checkpoint of that run:
 
    ```
-   python3 -m prednet predict /mnt/buffalo/prednet_runs/2026-11-05_1430_sample
+   python3 -m prednet predict /home/deepimac/Claude/prednet_runs/2026-11-05_1430_sample
    ```
 
 ## Configs
@@ -101,8 +101,8 @@ Training on several lists in turn (the old `sequence_list.txt`):
 ```yaml
 data:
   train_list:
-    - /mnt/buffalo/prednet_data/frames/a/train_list.txt
-    - /mnt/buffalo/prednet_data/frames/b/train_list.txt
+    - /home/deepimac/Claude/prednet_data/frames/a/train_list.txt
+    - /home/deepimac/Claude/prednet_data/frames/b/train_list.txt
 ```
 
 ## What a run folder contains
@@ -132,14 +132,14 @@ Old models without a run folder:
 
 ```
 python3 -m prednet predict --config configs/ego4d.yaml \
-    --weights /mnt/buffalo/prednet_data/weights/legacy_models/1100000.pth \
-    --list /mnt/buffalo/prednet_data/frames/sample/test_list.txt --out /tmp/pred
+    --weights /home/deepimac/Claude/prednet_data/weights/legacy_models/1100000.pth \
+    --list /home/deepimac/Claude/prednet_data/frames/sample/test_list.txt --out /tmp/pred
 ```
 
 ## Test stimuli
 
 All test stimuli are named in one file,
-`/mnt/buffalo/prednet_data/test_images/stimuli.yaml`:
+`/home/deepimac/Claude/prednet_data/test_images/stimuli.yaml`:
 
 ```yaml
 bht:                        # Benham top
@@ -172,7 +172,7 @@ Output: `RUN_DIR/predictions/<checkpoint>_<stimulus>/`.
 batch:
   repeats: 20                         # train each dataset 20 times
   datasets:                           # name: train list
-    ego4d_00: /mnt/buffalo/prednet_data/frames/ego4d_00/train_list.txt
+    ego4d_00: /home/deepimac/Claude/prednet_data/frames/ego4d_00/train_list.txt
   stimuli: [bht, bht_rev, bht_static, bhtr, bhtr_rev, bhtr_static]
   checkpoints: [10000, 20000, 30000, 40000]
   collect: [test_19y_0.jpg]           # copied into summary/
@@ -180,7 +180,7 @@ batch:
 
 ```
 python3 -m prednet batch configs/benham_batch.yaml
-python3 -m prednet batch --resume /mnt/buffalo/prednet_runs/<batch folder>
+python3 -m prednet batch --resume /home/deepimac/Claude/prednet_runs/<batch folder>
 ```
 
 The batch folder holds `batch.yaml`, `status.csv`, one run folder per
@@ -258,7 +258,7 @@ prednet_refactor/
 データと結果は、プロジェクトの中ではなく外付けHDDに置きます。
 
 ```
-/mnt/buffalo/prednet_data/
+/home/deepimac/Claude/prednet_data/
   videos/         元の動画
   frames/<名前>/  フレーム画像と train_list.txt / test_list.txt
   weights/init/   初期の重み（init4.pth など）
@@ -268,7 +268,7 @@ prednet_refactor/
     legacy_lists/ 以前の *_test_list.txt（もう使いません）
   baseline/       元のコードの出力（テスト用の基準）
   old_outputs/    テスト刺激の中に紛れていた昔の予測結果
-/mnt/buffalo/prednet_runs/
+/home/deepimac/Claude/prednet_runs/
   <日付>_<時刻>_<名前>/   学習1回ごと、または一括実行1回ごとのフォルダ
 ```
 
@@ -283,8 +283,8 @@ cd ~/Claude/prednet_refactor
 1. 動画をフレームに分けます。
 
    ```
-   python3 -m prednet prepare /mnt/buffalo/prednet_data/videos/cat_snake.mp4 \
-       --out /mnt/buffalo/prednet_data/frames/cat_snake --width 160 --height 120
+   python3 -m prednet prepare /home/deepimac/Claude/prednet_data/videos/cat_snake.mp4 \
+       --out /home/deepimac/Claude/prednet_data/frames/cat_snake --width 160 --height 120
    ```
 
 2. 設定ファイルを作ります（`configs/sample.yaml` をコピーして、`name` と一覧のパスを変えます）。
@@ -295,12 +295,12 @@ cd ~/Claude/prednet_refactor
    python3 -m prednet train configs/sample.yaml
    ```
 
-   たとえば `/mnt/buffalo/prednet_runs/2026-11-05_1430_sample/` が作られます。
+   たとえば `/home/deepimac/Claude/prednet_runs/2026-11-05_1430_sample/` が作られます。
 
 4. その学習の最新のモデルで予測します。
 
    ```
-   python3 -m prednet predict /mnt/buffalo/prednet_runs/2026-11-05_1430_sample
+   python3 -m prednet predict /home/deepimac/Claude/prednet_runs/2026-11-05_1430_sample
    ```
 
 ## 設定ファイル
@@ -324,8 +324,8 @@ python3 -m prednet train configs/ego4d.yaml --set train.period=40000 --set train
 ```yaml
 data:
   train_list:
-    - /mnt/buffalo/prednet_data/frames/a/train_list.txt
-    - /mnt/buffalo/prednet_data/frames/b/train_list.txt
+    - /home/deepimac/Claude/prednet_data/frames/a/train_list.txt
+    - /home/deepimac/Claude/prednet_data/frames/b/train_list.txt
 ```
 
 ## 学習フォルダの中身
@@ -355,13 +355,13 @@ python3 -m prednet predict 学習フォルダ --set predict.ext=20 --set predict
 
 ```
 python3 -m prednet predict --config configs/ego4d.yaml \
-    --weights /mnt/buffalo/prednet_data/weights/legacy_models/1100000.pth \
-    --list /mnt/buffalo/prednet_data/frames/sample/test_list.txt --out /tmp/pred
+    --weights /home/deepimac/Claude/prednet_data/weights/legacy_models/1100000.pth \
+    --list /home/deepimac/Claude/prednet_data/frames/sample/test_list.txt --out /tmp/pred
 ```
 
 ## テスト刺激
 
-テスト刺激は、すべて1つのファイル `/mnt/buffalo/prednet_data/test_images/stimuli.yaml` に名前付きで書いてあります。
+テスト刺激は、すべて1つのファイル `/home/deepimac/Claude/prednet_data/test_images/stimuli.yaml` に名前付きで書いてあります。
 
 ```yaml
 bht:                        # ベンハムのコマ
@@ -392,7 +392,7 @@ python3 -m prednet predict 学習フォルダ --stimulus bht --stimulus bht_rev
 batch:
   repeats: 20                         # それぞれのデータで20回学習する
   datasets:                           # 名前: 学習用の一覧
-    ego4d_00: /mnt/buffalo/prednet_data/frames/ego4d_00/train_list.txt
+    ego4d_00: /home/deepimac/Claude/prednet_data/frames/ego4d_00/train_list.txt
   stimuli: [bht, bht_rev, bht_static, bhtr, bhtr_rev, bhtr_static]
   checkpoints: [10000, 20000, 30000, 40000]
   collect: [test_19y_0.jpg]           # summary/ に集めるファイル
@@ -400,7 +400,7 @@ batch:
 
 ```
 python3 -m prednet batch configs/benham_batch.yaml
-python3 -m prednet batch --resume /mnt/buffalo/prednet_runs/<一括実行のフォルダ>
+python3 -m prednet batch --resume /home/deepimac/Claude/prednet_runs/<一括実行のフォルダ>
 ```
 
 一括実行のフォルダには、`batch.yaml`、`status.csv`、`<データ名>/<回数>/` ごとの学習フォルダ、`summary/<データ名>_<回数>_<刺激>_<チェックポイント>_<ファイル名>` ができます。途中で止めても再開でき、終わった部分（`DONE` の印があるもの）は飛ばします。

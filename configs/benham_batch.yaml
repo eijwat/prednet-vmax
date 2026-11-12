@@ -1,7 +1,7 @@
 # Batch: train several times, then test on the Benham-top stimuli.
 # New form of the original auto_train_test.py + auto_benham.py.
 # Run:     python3 -m prednet batch configs/benham_batch.yaml
-# Resume:  python3 -m prednet batch --resume /mnt/buffalo/prednet_runs/<batch folder>
+# Resume:  python3 -m prednet batch --resume /home/deepimac/Claude/prednet_runs/<batch folder>
 #
 # The legacy script trained data_unity/rbg and data_sim/000 ... 555; those
 # frame sets are not on the imac yet, so ego4d_00 stands in. Add more
@@ -11,7 +11,7 @@ data:
   size: [160, 120]
 model:
   channels: [3, 48, 96, 192]
-  init_weights: /mnt/buffalo/prednet_data/weights/init/56_1945_5000.pth
+  init_weights: /home/deepimac/Claude/prednet_data/weights/init/56_1945_5000.pth
 train:
   period: 40000
   save_every: 10000
@@ -19,7 +19,7 @@ train:
 batch:
   repeats: 20
   datasets:
-    ego4d_00: /mnt/buffalo/prednet_data/frames/ego4d_00/train_list.txt
+    ego4d_00: /home/deepimac/Claude/prednet_data/frames/ego4d_00/train_list.txt
   stimuli: [bht, bht_rev, bht_static, bhtr, bhtr_rev, bhtr_static]
   checkpoints: [10000, 20000, 30000, 40000]
   collect: [test_19y_0.jpg]

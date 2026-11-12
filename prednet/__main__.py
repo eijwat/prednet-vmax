@@ -28,7 +28,7 @@ config [CONFIG] [--set key=value ...]
 Examples
 --------
     python3 -m prednet train configs/sample.yaml --set train.period=40
-    python3 -m prednet predict /mnt/buffalo/prednet_runs/2026-11-05_1430_sample
+    python3 -m prednet predict /home/deepimac/Claude/prednet_runs/2026-11-05_1430_sample
     python3 -m prednet predict RUN_DIR --stimulus bht --stimulus bht_rev
     python3 -m prednet batch configs/benham_batch.yaml
 """

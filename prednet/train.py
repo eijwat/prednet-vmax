@@ -11,7 +11,7 @@ Everything a run produces goes into its own run folder:
         model.dot          only with train.save_graph
 
 The numerical procedure is the same as ``train()`` in the original main.py
-(git 1e000af, also in /mnt/buffalo/prednet_data/baseline); with the same
+(git 1e000af, also in /home/deepimac/Claude/prednet_data/baseline); with the same
 initial weights and data it produces bit-identical checkpoints (checked by
 tests/test_train_predict.py).
 """

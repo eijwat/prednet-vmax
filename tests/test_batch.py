@@ -20,7 +20,7 @@ from prednet.batch import resume_batch, run_batch  # noqa: E402
 from prednet.config import load_config  # noqa: E402
 from prednet.predict import predict  # noqa: E402
 
-DATA = "/mnt/buffalo/prednet_data"
+DATA = "/home/deepimac/Claude/prednet_data"
 
 
 def test_small_batch_and_resume():

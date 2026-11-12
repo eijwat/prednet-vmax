@@ -38,7 +38,7 @@ _spec = importlib.util.spec_from_file_location(
 legacy_prednet = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(legacy_prednet)
 
-DATA = "/mnt/buffalo/prednet_data"
+DATA = "/home/deepimac/Claude/prednet_data"
 CHECKPOINT = os.path.join(DATA, "weights", "init", "init4.pth")
 FRAMES = os.path.join(DATA, "frames", "sample")
 CHANNELS = [3, 48, 96, 192]
