@@ -96,6 +96,12 @@ To change a value for one run without editing the file, use `--set`:
 python3 -m prednet train configs/ego4d.yaml --set train.period=40000 --set train.lr_rate=0.9
 ```
 
+`train.flush_denormal` (default `true`) flushes denormal floats to zero on the
+CPU. Without it CPU training slows down 5-10x within a few steps (about 6 s ->
+45 s per 20-frame batch on the imac), because gradients and activations become
+denormal numbers, which the CPU computes very slowly. The GPU is not affected.
+Set it to `false` only to reproduce the old numerics exactly.
+
 Training on several lists in turn (the old `sequence_list.txt`):
 
 ```yaml

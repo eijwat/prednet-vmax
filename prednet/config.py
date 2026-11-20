@@ -64,6 +64,10 @@ DEFAULTS = {
         "tensorboard": False,
         "save_graph": False,         # write model.dot (needs torchviz)
         "seed": None,                # torch.manual_seed before building
+        # Flush denormal floats to zero (CPU). Without it, CPU training slows
+        # down 5-10x within a few steps as gradients/activations become
+        # denormal. Ignored on GPU. Also applies to "prednet predict".
+        "flush_denormal": True,
     },
     "predict": {
         "input_len": 20,             # frames given before predicting

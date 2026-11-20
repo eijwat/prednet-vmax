@@ -37,6 +37,11 @@ def resolve_device(name):
     return "cuda" if torch.cuda.is_available() else "cpu"
 
 
+def apply_numerics(cfg):
+    """Set process-wide float behaviour from cfg (train.flush_denormal)."""
+    torch.set_flush_denormal(bool(cfg["train"]["flush_denormal"]))
+
+
 def build_model(cfg, device):
     """PredNet from cfg["model"], on ``device``, with init weights if given."""
     m = cfg["model"]
@@ -70,6 +75,7 @@ def build_loss(name, device):
 def train(cfg, run_dir=None):
     """Train according to ``cfg``. Returns the run folder path."""
     d, t = cfg["data"], cfg["train"]
+    apply_numerics(cfg)
     device = resolve_device(cfg["device"])
     width, height = d["size"]
     channels = cfg["model"]["channels"]

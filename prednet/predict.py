@@ -25,7 +25,7 @@ from tqdm import tqdm
 
 from .data import make_dataset
 from .io import load_weights, make_writer, write_image, write_outputs
-from .train import build_model, resolve_device
+from .train import apply_numerics, build_model, resolve_device
 
 
 def latest_checkpoint(run_dir):
@@ -51,6 +51,7 @@ def predict(cfg, weights, test_list, out_dir):
     test_list : a list file, or entries from prednet.stimuli.
     """
     d, p = cfg["data"], cfg["predict"]
+    apply_numerics(cfg)
     device = resolve_device(cfg["device"])
     width, height = d["size"]
     ch = cfg["model"]["channels"][0]
