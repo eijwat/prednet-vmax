@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the article below."
+title: "PredNet in PyTorch"
+type: software
+license: MIT
+repository-code: "https://github.com/eijwat/prednet-vmax"
+authors:
+  - family-names: Tanaka
+    given-names: Kenta
+  - family-names: Kosaka
+    given-names: Manabu
+  - family-names: Watanabe
+    given-names: Eiji
+preferred-citation:
+  type: article
+  title: "Predictive networks generate motion-induced color illusions"
+  authors:
+    - family-names: Ueda
+      given-names: Kyohei
+    - family-names: Sinapayen
+      given-names: Lana
+    - family-names: Watanabe
+      given-names: Eiji
+  journal: "Scientific Reports"
+  volume: 16
+  issue: 1
+  start: 27582
+  year: 2026
+  doi: "10.1038/s41598-026-57953-w"

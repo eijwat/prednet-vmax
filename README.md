@@ -21,6 +21,17 @@ Config files can refer to the two folders as `${PREDNET_DATA}` and
 `${PREDNET_RUNS}`. The data folder is not part of this repository; the tests
 need it and are skipped when it is missing.
 
+## Citation
+
+If you use this code, please cite:
+
+> Ueda K, Sinapayen L, Watanabe E. Predictive networks generate motion-induced
+> color illusions. *Scientific Reports* 16, 27582 (2026).
+> https://doi.org/10.1038/s41598-026-57953-w
+
+This repository is a refactored version of the code used in that study. See
+also `CITATION.cff`.
+
 Licensed under the MIT License (see `LICENSE`). Third-party sources are listed
 in `THIRD_PARTY_NOTICES.md`.
 

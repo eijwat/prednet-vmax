@@ -23,4 +23,6 @@ and follow their licenses.
 
 If you use this code, please cite the original PredNet paper
 (Lotter, Kreiman & Cox, 2016, https://arxiv.org/abs/1605.08104) and the work
-that this code was written for (see `README.md`).
+that this code was written for: Ueda, Sinapayen & Watanabe, *Predictive networks
+generate motion-induced color illusions*, Scientific Reports 16, 27582 (2026),
+https://doi.org/10.1038/s41598-026-57953-w.
