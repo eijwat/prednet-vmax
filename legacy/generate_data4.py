@@ -1,9 +1,9 @@
 #!/usr/bin/python
 #coding:utf-8
 """
-動画からフレームと音声を画像データにして保存するスクリプト．
+Save the frames and the audio of a video as image data.
 
-  $ python generate_data.py 入力の動画ファイル
+  $ python generate_data.py INPUT_VIDEO
 """
 import os
 import sys
@@ -56,7 +56,7 @@ for f in videos:
         image = cv2.resize(image, (img_conf['width'], img_conf['height']))
         cv2.imwrite(ifiles[-1], image)
 
-    # 学習用画像リストファイルを最後に作成して保存
+    # Finally, write the list file of training images
     ilist_file = os.path.join(out_dir, "data_img_list.txt")
     print('\nSave %s' % ilist_file)
     with open(ilist_file, 'w') as f:

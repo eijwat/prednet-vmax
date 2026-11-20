@@ -1,13 +1,13 @@
 # Tiny smoke-test config: 21 frames, a few seconds of training on CPU.
-# Same settings as the baseline in /home/deepimac/Claude/prednet_data/baseline.
+# Same settings as the baseline in ${PREDNET_DATA}/baseline.
 name: sample
 data:
-  train_list: /home/deepimac/Claude/prednet_data/frames/sample/train_list.txt
-  test_list: /home/deepimac/Claude/prednet_data/frames/sample/test_list.txt
+  train_list: ${PREDNET_DATA}/frames/sample/train_list.txt
+  test_list: ${PREDNET_DATA}/frames/sample/test_list.txt
   size: [160, 120]
 model:
   channels: [3, 48, 96, 192]
-  init_weights: /home/deepimac/Claude/prednet_data/weights/init/init4.pth
+  init_weights: ${PREDNET_DATA}/weights/init/init4.pth
 train:
   period: 20
   save_every: 20

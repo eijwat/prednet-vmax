@@ -20,7 +20,13 @@ import os
 
 import yaml
 
-DEFAULT_RUNS_DIR = "/home/deepimac/Claude/prednet_runs"
+# Where the data and the run folders live. Set the environment variables
+# PREDNET_DATA and PREDNET_RUNS to use other folders. Config files may refer
+# to them as ${PREDNET_DATA} and ${PREDNET_RUNS}.
+DATA_DIR = os.path.expanduser(os.environ.get("PREDNET_DATA", "~/prednet_data"))
+DEFAULT_RUNS_DIR = os.path.expanduser(os.environ.get("PREDNET_RUNS", "~/prednet_runs"))
+os.environ.setdefault("PREDNET_DATA", DATA_DIR)
+os.environ.setdefault("PREDNET_RUNS", DEFAULT_RUNS_DIR)
 
 DEFAULTS = {
     "name": "run",
@@ -78,7 +84,7 @@ DEFAULTS = {
         "useamp": False,
         "tensorboard": False,
         # Catalog of named test stimuli (see prednet/stimuli.py).
-        "stimuli_catalog": "/home/deepimac/Claude/prednet_data/test_images/stimuli.yaml",
+        "stimuli_catalog": os.path.join(DATA_DIR, "test_images", "stimuli.yaml"),
     },
     # Used only by "prednet batch" (see prednet/batch.py).
     "batch": {
@@ -99,6 +105,17 @@ DEFAULTS = {
     },
     "device": "",                    # "" = cuda if available, else cpu
 }
+
+
+def expand_vars(value):
+    """Expand ``$VAR``, ``${VAR}`` and ``~`` in every string of a config."""
+    if isinstance(value, str):
+        return os.path.expanduser(os.path.expandvars(value))
+    if isinstance(value, list):
+        return [expand_vars(v) for v in value]
+    if isinstance(value, dict):
+        return {k: expand_vars(v) for k, v in value.items()}
+    return value
 
 
 def deep_merge(base, override):
@@ -146,7 +163,7 @@ def load_config(path=None, overrides=()):
     for expr in overrides:
         apply_override(user, expr)
     check_keys(user)
-    cfg = deep_merge(DEFAULTS, user)
+    cfg = expand_vars(deep_merge(DEFAULTS, user))
     if path and "name" not in user:
         cfg["name"] = os.path.splitext(os.path.basename(path))[0]
     return cfg

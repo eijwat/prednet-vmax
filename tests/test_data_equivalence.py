@@ -21,7 +21,7 @@ _spec = importlib.util.spec_from_file_location(
 legacy_dataset = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(legacy_dataset)
 
-DATA = "/home/deepimac/Claude/prednet_data"
+DATA = os.environ.get("PREDNET_DATA", os.path.expanduser("~/prednet_data"))
 SAMPLE = os.path.join(DATA, "frames", "sample")
 EGO = os.path.join(DATA, "frames", "ego4d_00")
 

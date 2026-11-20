@@ -1,19 +1,18 @@
 #!/usr/bin/python
 #coding:utf-8
 """
-動画からフレームを取り出して静止画を生成するスクリプトです．
-以下のように用います．
+Extract frames from a video and save them as still images.
+Usage:
 
-  $ python generate_image.py 入力の動画ファイル
+  $ python generate_image.py INPUT_VIDEO
 
-dataディレクトリ以下にframe_フレームナンバー.jpg
-でファイルが保存されます．
+The frames are saved as data/frame_<frame number>.jpg.
 
-また，学習に用いるファイルのリストを記述したtrain_list.txtと
-テスト用に用いるファイルのリストを記述したtest_list.txtも保存されます．
-デフォルトでは動画後半2割分がテスト用データになります．
+train_list.txt (the files used for training) and test_list.txt (the files
+used for testing) are saved as well. By default the last 20% of the video
+is the test data.
 
-参考サイト
+Reference
 http://stackoverflow.com/questions/33311153/python-extracting-and-saving-video-frames
 """
 import cv2
@@ -95,10 +94,10 @@ while True:
             cv2.imwrite(tfiles[-1], image_t)
     count += 1
     cur_skip += 1
-# 学習用画像リストファイルを最後に作成して保存
+# Finally, write the list files of training and test images
 train_list_file = os.path.join(args.dir, "train_list.txt")
 test_list_file = os.path.join(args.dir, "test_list.txt")
-ratio = max(0.0, min(1.0, args.ratio)) # 0〜1の範囲に収める
+ratio = max(0.0, min(1.0, args.ratio)) # clamp to the range 0-1
 index = int(count * (1.0 - ratio)) * args.n_copy
 print('\nSave %s' % train_list_file)
 if tfiles:
